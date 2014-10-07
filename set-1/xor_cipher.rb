@@ -2,8 +2,6 @@ require_relative 'matasano'
 
 module Matasano
   class XORCipher
-    include Matasano::Utils
-
     CONNECTIVES = ->(str) {
       $english_words ||= File.read("/usr/share/dict/connectives").split("\n").freeze
       str.split(/\s+/).select { |w| $english_words.include? w }.length
