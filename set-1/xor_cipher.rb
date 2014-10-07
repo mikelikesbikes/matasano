@@ -23,16 +23,16 @@ module Matasano
     end
 
     def decrypt(str, key)
-      keystr = ("%02x" % key) * (str.length / 2)
+      keystr = key.chars.lazy.cycle.map{ |c| "%02x" % c.ord }.take(str.length / 2).to_a.join
+
       Matasano::Utils.fixed_xor(Matasano::Utils.hex_to_bytes(str),
                                 Matasano::Utils.hex_to_bytes(keystr))
     end
-
     alias_method :encrypt, :decrypt
 
     def find_cipher_key(str)
       0.upto(255)
-       .map    { |k| [k, s = decrypt(str, k), @scoring_func.call(s)] }
+       .map    { |k| [k.chr, s = decrypt(str, k.chr), @scoring_func.call(s)] }
        .sort_by(&:last)
        .last
        .first
@@ -44,7 +44,7 @@ module Matasano
 
     def find_decryption_in_file(filename)
       File.readlines(filename)
-          .map { |line| find_decryption(line.chomp) }
+          .map    { |l| find_decryption(l.chomp) }
           .max_by { |s| @scoring_func.call(s) }
     end
   end
