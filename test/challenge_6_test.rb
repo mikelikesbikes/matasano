@@ -1,30 +1,50 @@
-require 'minitest/autorun'
-require_relative '../set-1/xor_cipher'
+require_relative 'matasano_test'
+require 'set'
 
-class Challenge1Test < Minitest::Test
+class Challenge6Test < MatasanoTest
   def test_hamming_distance
     a = "this is a test"
     b = "wokka wokka!!!"
 
-    assert_equal(37, Matasano::Utils.hamming_distance(
-                 Matasano::Utils.bytes_to_hex(a),
-                 Matasano::Utils.bytes_to_hex(b)))
+    assert_equal(37,
+                 hamming_distance(a, b))
   end
 
   def test_break_repeating_xor_key
-    contents = Matasano::Utils.hex_to_bytes(Matasano::Utils.base64_to_hex(File.read(File.expand_path('../challenge_6.txt', __FILE__)).chomp.gsub("\n", "")))
-    candidate_keysize = 2.upto(40).map { |keysize|
-      a = Matasano::Utils.bytes_to_hex(contents.chars.take(keysize).join)
-      b = Matasano::Utils.bytes_to_hex(contents.chars.drop(keysize).take(keysize).join)
-      [keysize, Matasano::Utils.hamming_distance(a, b) / keysize.to_f]
-    }.sort_by(&:last).first.first
+    b64content = File.read(File.expand_path('../challenge_6.txt', __FILE__)).chomp.gsub("\n", "")
 
-    first, *rest = contents.chars.each_slice(candidate_keysize).to_a
+    hexcontent = base64_to_hex(b64content)
 
-    cipher = Matasano::XORCipher.new
+    contents = hex_to_bytes(hexcontent)
 
-    candidate_key = first.zip(*rest).map(&:join).map { |s| Matasano::XORCipher.new.find_cipher_key(s) }.join
+    candidate_keysizes = 2.upto(40).map { |keysize|
+      chunk_count = 10
+      chunk_combinations = contents.chars.take(keysize * chunk_count).each_slice(keysize).to_a.map(&:join).permutation(2).map { |a| Set.new(a) }.uniq
+      sample_count = [20, chunk_combinations.length].min
 
-    p cipher.decrypt(Matasano::Utils.bytes_to_hex(contents), candidate_key)
+      hd_total = chunk_combinations.sample(sample_count).reduce(0) do |hd, s|
+        puts "woo"
+        p s
+        hd + hamming_distance(*s.to_a)
+      end
+
+      [keysize, hd_total / keysize.to_f]
+    }.sort_by(&:last).map(&:first).take(3)
+
+    p candidate_keysizes
+
+    candidate_keysizes = [*5..5]
+    # p candidate_keysizes
+
+    candidate_keysizes.each do |candidate_keysize|
+      first, *rest = contents.chars.each_slice(candidate_keysize).to_a
+      puts '============'
+      p first
+      p rest.first
+      p first.zip(rest.first).map(&:join)
+      p candidate_key = first.zip(*rest).map(&:join).tap{|s| p s.first }.map { |s| find_cipher_key(s) }.join
+
+      # p decrypt(bytes_to_hex(contents), candidate_key)
+    end
   end
 end
