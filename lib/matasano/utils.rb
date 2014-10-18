@@ -80,6 +80,19 @@ module Matasano
           .map    { |l| find_decryption(hex_to_bytes(l.chomp)) }
           .max_by { |s| string_score(s) }
     end
+
+    def find_candidate_keysizes(str, n = 1)
+      [*2..40].sort_by { |keysize|
+        chunk_combinations = str.chars.each_slice(keysize).to_a.slice(0,10).map(&:join).permutation(2).map { |a| Set.new(a) }.uniq
+
+        hd_total = chunk_combinations.reduce(0) do |hd, s|
+          hd + hamming_distance(*s.to_a)
+        end
+
+        hd_total / keysize.to_f
+      }.take(n)
+    end
+
   end
 end
 
