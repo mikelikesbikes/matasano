@@ -75,10 +75,9 @@ module Matasano
       end
     end
 
-    def find_decryption_in_file(filename)
-      File.readlines(filename)
-          .map    { |l| find_decryption(hex_to_bytes(l.chomp)) }
-          .max_by { |s| string_score(s) }
+    def find_best_decryption(arr, keysize = 1)
+      arr.map    { |s| find_decryption(s, keysize) }
+         .max_by { |s| string_score(s) }
     end
 
     def find_candidate_keysizes(str, n = 1)
