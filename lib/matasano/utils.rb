@@ -22,15 +22,23 @@ module Matasano
 
     def hamming_distance(x, y)
       x.bytes.zip(y.bytes).reduce(0) do |ham, (a, b)|
-        val = a ^ b
-        dist = 0
-        while val > 0
-          dist += 1
-          val &= val - 1
-        end
-
-        ham + dist
+        ham + popcount(a ^ b)
       end
+    end
+
+    def popcount(x)
+      @popcounts ||= Hash.new { |h, k|
+        i = k
+        m1 = 0x55555555
+        m2 = 0x33333333
+        m4 = 0x0f0f0f0f
+        i -= (i >> 1) & m1
+        i = (i & m2) + ((i >> 2) & m2)
+        i = (i + (i >> 4)) & m4
+        i += i >> 8
+        h[k] = (i + (i >> 16)) & 0x3f
+      }
+      @popcounts[x]
     end
 
     def find_cipher_key(str)
