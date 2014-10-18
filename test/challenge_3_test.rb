@@ -1,6 +1,6 @@
-require_relative 'matasano_test'
+require 'test_helper'
 
-class Challenge3Test < MatasanoTest
+class Challenge3Test < Minitest::Test
   def test_find_decryption
     encstr = hex_to_bytes("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736")
 

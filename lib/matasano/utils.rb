@@ -1,3 +1,5 @@
+require 'set'
+
 module Matasano
   module Utils
     def hex_to_bytes(hexstr)
@@ -94,4 +96,6 @@ module Matasano
 
   end
 end
+
+include Matasano::Utils
 

@@ -1,8 +1,6 @@
-require_relative 'matasano_test'
-require 'byebug'
-require 'set'
+require 'test_helper'
 
-class Challenge6Test < MatasanoTest
+class Challenge6Test < Minitest::Test
   def test_hamming_distance
     a = "this is a test"
     b = "wokka wokka!!!"
