@@ -41,14 +41,20 @@ module Matasano
       @popcounts[x]
     end
 
-    def find_cipher_key(str)
+    def find_single_byte_xor_cipher_key(str)
       [*0..127].map(&:chr)
                .max_by { |k| string_score(decrypt(str, k.chr)) }
     end
 
-    def find_decryption(str)
-      key = find_cipher_key(str)
-      decrypt(str, key)
+    def find_repeating_xor_cipher_key(str, keysize = 1)
+      first, *rest = str.chars.each_slice(keysize).to_a
+      first.zip(*rest)
+           .map { |chars| find_single_byte_xor_cipher_key(chars.join) }
+           .join
+    end
+
+    def find_decryption(str, keysize = 1)
+      decrypt(str, find_repeating_xor_cipher_key(str, keysize))
     end
 
     def decrypt(str, key)
