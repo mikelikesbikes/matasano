@@ -1,4 +1,5 @@
 require_relative 'matasano_test'
+require 'byebug'
 require 'set'
 
 class Challenge6Test < MatasanoTest
@@ -23,28 +24,26 @@ class Challenge6Test < MatasanoTest
       sample_count = [20, chunk_combinations.length].min
 
       hd_total = chunk_combinations.sample(sample_count).reduce(0) do |hd, s|
-        puts "woo"
-        p s
         hd + hamming_distance(*s.to_a)
       end
 
       [keysize, hd_total / keysize.to_f]
-    }.sort_by(&:last).map(&:first).take(3)
+    }.sort_by(&:last).map(&:first).take(1)
 
     p candidate_keysizes
 
-    candidate_keysizes = [*5..5]
-    # p candidate_keysizes
+    # # p candidate_keysizes
 
     candidate_keysizes.each do |candidate_keysize|
       first, *rest = contents.chars.each_slice(candidate_keysize).to_a
       puts '============'
-      p first
-      p rest.first
-      p first.zip(rest.first).map(&:join)
-      p candidate_key = first.zip(*rest).map(&:join).tap{|s| p s.first }.map { |s| find_cipher_key(s) }.join
+      # p first
+      # p rest.first
+      # p first.zip(rest.first).map(&:join)
+      #
+      p candidate_key = first.zip(*rest).map(&:join).map { |s| find_cipher_key(s) }.join
 
-      # p decrypt(bytes_to_hex(contents), candidate_key)
+      p decrypt(contents, candidate_key)
     end
   end
 end
