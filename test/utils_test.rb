@@ -52,11 +52,37 @@ class UtilsTest < Minitest::Test
     assert_equal(expected, find_decryption(str, 4))
   end
 
+  def test_encrypt_decrypt
+    assert_equal("string", decrypt(encrypt("string", "x"), "x"))
+    str = "The bird flies at midnight"
+    key = "this is a key"
+    assert_equal(str, decrypt(encrypt(str, key), key))
+  end
+
+  def test_repeating_key
+    assert_equal("xxx", repeating_key("x", 3))
+    assert_equal("xxx", repeating_key("xxxxxxx", 3))
+    assert_equal("ice", repeating_key("icecube", 3))
+    assert_equal("icecubeice", repeating_key("icecube", 10))
+    assert_equal("cool"*10, repeating_key("cool",40))
+  end
+
+  def test_string_score
+    assert(string_score("abcdef") > 0)
+    assert_equal(1000, string_score("abcdefghij", Hash.new(100)))
+    assert(string_score("this is a string. neat.") > string_score("THIS\u0000IS\u0000A\u0000STRING\u000E\u0000NEAT\u000E"))
+  end
+
   def test_find_candidate_keysizes
     b64content = File.read(File.expand_path('../challenge_6.txt', __FILE__)).chomp.gsub("\n", "")
     contents = hex_to_bytes(base64_to_hex(b64content))
 
     assert_equal([29], find_candidate_keysizes(contents))
+  end
+
+  def test_normalized_hamming_distance
+    assert_equal(normalized_hamming_distance("abc", "def"),
+                 normalized_hamming_distance("abc"*10, "def"*10))
   end
 end
 

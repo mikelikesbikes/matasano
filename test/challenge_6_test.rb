@@ -2,13 +2,13 @@ require 'test_helper'
 
 class Challenge6Test < Minitest::Test
   def test_break_repeating_xor_key
-    b64content = File.read(File.expand_path('../challenge_6.txt', __FILE__)).chomp.gsub("\n", "")
-    contents = hex_to_bytes(base64_to_hex(b64content))
+    filename = File.expand_path('../challenge_6.txt', __FILE__)
+    contents = hex_to_bytes(base64_to_hex(File.read(filename).chomp.gsub("\n", "")))
 
-    candidate_keysizes = find_candidate_keysizes(contents)
+    decrypted_first_line = find_decryption(contents, find_candidate_keysize(contents)).split("\n").first
+    # look at that dumb space character on the end... that's so dumb.
+    expected = "I'm back and I'm ringin' the bell "
 
-    candidate_keysizes.each do |keysize|
-      puts find_decryption(contents, keysize)
-    end
+    assert_equal(expected, decrypted_first_line)
   end
 end
