@@ -1,4 +1,5 @@
 require 'set'
+require 'openssl'
 
 module Matasano
   module Utils
@@ -59,10 +60,17 @@ module Matasano
       decrypt(str, find_repeating_xor_cipher_key(str, keysize))
     end
 
-    def decrypt(str, key)
-      fixed_xor(str, repeating_key(key, str.length))
+    def decrypt(encrypted, key)
+      fixed_xor(encrypted, repeating_key(key, encrypted.length))
     end
     alias_method :encrypt, :decrypt
+
+    def decrypt_aes_ecb(encrypted, key)
+      decipher = OpenSSL::Cipher::AES.new(128, :ECB)
+      decipher.decrypt
+      decipher.key = key
+      decipher.update(encrypted) + decipher.final
+    end
 
     def repeating_key(key, length)
       key.chars.cycle.take(length).join
