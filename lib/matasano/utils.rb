@@ -3,6 +3,8 @@ require 'openssl'
 
 module Matasano
   module Utils
+    extend self
+
     def hex_to_bytes(hexstr)
       [hexstr].pack("H*")
     end
