@@ -1,5 +1,6 @@
 require 'set'
 require 'openssl'
+require 'byebug'
 
 module Matasano
   module Utils
@@ -62,6 +63,11 @@ module Matasano
       decrypt(str, find_repeating_xor_cipher_key(str, keysize))
     end
 
+    def is_ecb_ciphertext(str)
+      blocks = str.chars.each_slice(16).map(&:join)
+      blocks.length > blocks.uniq.length
+    end
+
     def decrypt(encrypted, key)
       fixed_xor(encrypted, repeating_key(key, encrypted.length))
     end
@@ -93,7 +99,7 @@ module Matasano
 
     def find_candidate_keysizes(str, n = 1)
       2.upto([str.length, 40].min)
-       .sort_by { |keysize| normalized_hamming_distance(*chunks(str, keysize)) }
+       .sort_by { |keysize| chunks = chunks(str, keysize); normalized_hamming_distance(*chunks) }
        .take(n)
     end
 
@@ -104,6 +110,7 @@ module Matasano
     def chunks(str, size)
       str.chars
          .each_slice(size)
+         .reject { |slice| slice.length != size }
          .to_a
          .slice(0,10)
          .map(&:join)
